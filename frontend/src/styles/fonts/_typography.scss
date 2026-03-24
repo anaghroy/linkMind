@@ -1,0 +1,34 @@
+/*All fonts SRC*/
+@font-face {
+  font-family: DMregular;
+  src: url(../../assets/Fonts/DMSans_24pt-Regular.ttf);
+}
+@font-face {
+  font-family: DMSemiBold;
+  src: url(../../assets/Fonts/DMSans_18pt-SemiBold.ttf);
+}
+@font-face {
+  font-family: JetBrainsMono;
+  src: url(../../assets/Fonts/JetBrainsMono-Regular.ttf);
+}
+@font-face {
+  font-family: JetBrainsMonoBold;
+  src: url(../../assets/Fonts/JetBrainsMono-SemiBold.ttf);
+}
+@font-face {
+  font-family: SyneRegular;
+  src: url(../../assets/Fonts/Syne-Regular.ttf);
+}
+@font-face {
+  font-family: SyneSemiBold;
+  src: url(../../assets/Fonts/Syne-SemiBold.ttf);
+}
+
+:root {
+  --font-DMregular: "DMregular", sans-serif;
+  --font-DMSemiBold: "DMSemiBold", sans-serif;
+  --font-JetBrainsMono: "JetBrainsMono", sans-serif;
+  --font-JetBrainsMonoBold: "JetBrainsMonoBold", sans-serif;
+  --font-SyneRegular: "SyneRegular", sans-serif;
+  --font-SyneSemiBold: "SyneSemiBold", sans-serif;
+}
