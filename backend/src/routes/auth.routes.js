@@ -5,6 +5,7 @@ import {
   getMe,
   logout,
   verifyEmail,
+  updateProfile,
   resendVerificationEmail,
 } from "../controllers/auth.controller.js";
 import rateLimit from "express-rate-limit";
@@ -20,6 +21,7 @@ const resendLimit = rateLimit({
 router.post("/register", register);
 router.post("/login", login);
 router.get("/verify-email/:token", verifyEmail);
+router.patch("/me", auth, updateProfile);
 router.post("/resend-verification", resendLimit, resendVerificationEmail);
 router.get("/me", auth, getMe);
 router.post("/logout", auth, logout);

@@ -1,7 +1,8 @@
 import { Worker } from "bullmq";
 import Item from "../models/item.model.js";
 import { processItem } from "../services/ai.service.js";
-import { processResurfacingJob } from "../jobs/resurfacing.job.js";
+import { processResurfacingJob } from "../services/resurfacing.service.js";
+import { buildGraph } from "../services/graph.service.js";
 import logger from "../config/logger.js";
 
 // ─── BullMQ Redis Connection ──────────────────────────────────────────────────
@@ -23,16 +24,14 @@ async function processAIJob(job) {
   switch (job.name) {
     case "ai-process-item":
       return await handleProcessItem(job);
-
     case "ai-resurface":
       return await processResurfacingJob(job.data.userId);
-
     default:
       logger.warn(`Unknown job type: ${job.name}`);
   }
 }
 
-// ─── Handle: Process Item ────────────────────────────────────────────────────
+// ─── Handle: Process Item ─────────────────────────────────────────────────────
 
 async function handleProcessItem(job) {
   const { itemId, userId } = job.data;
@@ -69,6 +68,12 @@ async function handleProcessItem(job) {
 
   logger.info(
     `AI done: ${item._id} | tags: [${tags.join(", ")}] | embedding: ${embedding ? "✓" : "✗"}`
+  );
+
+  // ── Auto-rebuild graph edges after AI processing ──────────────────────────
+  // Run in background — don't block the job completion
+  buildGraph(userId).catch((err) =>
+    logger.error(`Graph build failed after item processing: ${err.message}`)
   );
 }
 

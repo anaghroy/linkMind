@@ -21,7 +21,9 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 0 14px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &:focus-within {
       border-color: var(--accent);
@@ -102,11 +104,27 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
 
     &:hover {
       transform: scale(1.05);
       box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
+  }
+}
+.navbar__brand {
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    font-size: 16px;
+    color: var(--text-primary);
+  }
+
+  p {
+    font-size: 12px;
+    opacity: 0.7;
   }
 }

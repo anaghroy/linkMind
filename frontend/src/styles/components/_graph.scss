@@ -1,0 +1,515 @@
+// ─── Graph Page ───────────────────────────────────────────────────────────────
+
+.graph-page {
+  position: fixed;
+  top: 64px; // navbar height
+  left: 240px; // sidebar width
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  overflow: hidden;
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 64px);
+    gap: 16px;
+
+    p {
+      font-family: var(--font-JetBrainsMono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+  }
+
+  &__loading-dots {
+    display: flex;
+    gap: 8px;
+
+    span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: loading-dot 1.2s ease-in-out infinite;
+
+      &:nth-child(2) { animation-delay: 0.2s; }
+      &:nth-child(3) { animation-delay: 0.4s; }
+    }
+  }
+}
+
+// ─── Graph Controls ───────────────────────────────────────────────────────────
+
+.graph-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    min-width: 180px;
+    color: var(--text-muted);
+
+    &:focus-within {
+      border-color: var(--accent);
+    }
+
+    input {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-DMregular);
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      width: 140px;
+
+      &::placeholder {
+        color: var(--text-muted);
+      }
+    }
+  }
+
+  &__types {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  &__type-btn {
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+
+    &--active {
+      background: rgba(99, 102, 241, 0.08);
+    }
+  }
+
+  &__zoom {
+    display: flex;
+    gap: 4px;
+
+    button {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+
+      &:hover {
+        background: var(--bg-hover);
+        border-color: var(--accent);
+      }
+    }
+  }
+}
+
+// ─── Graph Canvas ─────────────────────────────────────────────────────────────
+
+.graph-canvas {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+
+  svg {
+    display: block;
+  }
+
+  &__empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    pointer-events: none;
+
+    p {
+      font-family: var(--font-DMSemiBold);
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    span {
+      font-family: var(--font-DMregular);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+  }
+}
+
+// ─── Node Preview Panel ───────────────────────────────────────────────────────
+
+.graph-preview {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 300px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  z-index: 10;
+
+  &__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
+
+  &__type {
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  &__thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 10px;
+    background: var(--bg-hover);
+  }
+
+  &__title {
+    font-family: var(--font-DMSemiBold);
+    font-size: 1rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  &__ai {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__ai-label {
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+  }
+
+  p {
+    font-family: var(--font-DMregular);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  &__tags-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__section-label {
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+  }
+
+  &__tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__tag {
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.62rem;
+    color: var(--text-secondary);
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  &__open-btn {
+    padding: 11px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    font-family: var(--font-DMSemiBold);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s;
+
+    &:hover {
+      background: var(--accent-hover);
+    }
+  }
+}
+
+// ─── Animations ───────────────────────────────────────────────────────────────
+
+// ─── Strength Slider ─────────────────────────────────────────────────────────
+
+.graph-controls {
+  &__strength {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+
+    input[type="range"] {
+      width: 80px;
+      accent-color: var(--accent);
+    }
+  }
+
+  &__stats {
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  &__build-btn {
+    padding: 6px 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) { background: var(--accent-hover); }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+
+  &__rebuild-btn {
+    padding: 6px 14px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover:not(:disabled) {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+}
+
+// ─── Legend ───────────────────────────────────────────────────────────────────
+
+.graph-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  pointer-events: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  &__line {
+    width: 28px;
+    height: 2px;
+
+    &--solid {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    &--dashed {
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(99, 102, 241, 0.4) 0,
+        rgba(99, 102, 241, 0.4) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+    }
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+// ─── Canvas Build Button ──────────────────────────────────────────────────────
+
+.graph-canvas {
+  &__build-btn {
+    margin-top: 16px;
+    padding: 10px 24px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    font-family: var(--font-DMSemiBold);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) { background: var(--accent-hover); }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+}
+
+// ─── Tooltip ──────────────────────────────────────────────────────────────────
+
+.graph-tooltip {
+  position: fixed;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 14px;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 220px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  &__type {
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.58rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    font-family: var(--font-DMSemiBold);
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  &__tags {
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+}
+
+// ─── Preview Connections Button ───────────────────────────────────────────────
+
+.graph-preview {
+  &__connections-btn {
+    padding: 10px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text-secondary);
+    font-family: var(--font-DMregular);
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
+}
+
+@keyframes loading-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}

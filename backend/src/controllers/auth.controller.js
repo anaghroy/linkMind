@@ -2,7 +2,7 @@ import * as authService from "../services/auth.service.js";
 import User from "../models/auth.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import crypto from "crypto";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../services/mail.service.js";
 import { sendToken } from "../utils/cookie.js";
 import { redisClient } from "../config/redis.js";
@@ -17,7 +17,7 @@ export const register = asyncHandler(async (req, res) => {
 });
 
 export const login = asyncHandler(async (req, res) => {
-    const data = await authService.loginUser(req.body);
+  const data = await authService.loginUser(req.body);
   sendToken(data.user, res);
   res.json({
     success: true,
@@ -25,7 +25,30 @@ export const login = asyncHandler(async (req, res) => {
     user: data.user,
   });
 });
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
+    const updates = {};
+
+    // Only update fields that exist in request
+    if (req.body.name) updates.name = req.body.name;
+    if (req.body.avatar) updates.avatar = req.body.avatar;
+
+    const user = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
+
+    res.json({
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
 export const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.params;
 
@@ -88,7 +111,7 @@ export const resendVerificationEmail = asyncHandler(async (req, res) => {
 });
 // Get Current User
 export const getMe = asyncHandler(async (req, res) => {
-   const user = await authService.getMe(req.user.id);
+  const user = await authService.getMe(req.user.id);
 
   res.json({
     message: "User details fetched successfully",

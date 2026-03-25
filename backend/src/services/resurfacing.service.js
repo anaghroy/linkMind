@@ -182,3 +182,15 @@ export async function getResurfacingStats(userId) {
     mostSurfaced: mostSurfaced || null,
   };
 }
+export async function processResurfacingJob(userId) {
+  const items = await getResurfacedItems(userId);
+
+  if (!items.length) return [];
+
+  await markAsSurfaced(
+    userId,
+    items.map((item) => item._id)
+  );
+
+  return items;
+}

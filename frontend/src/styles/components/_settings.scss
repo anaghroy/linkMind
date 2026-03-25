@@ -1,0 +1,385 @@
+// ─── Settings Page ────────────────────────────────────────────────────────────
+
+.settings {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  position: relative;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__title {
+    font-family: var(--font-SyneSemiBold);
+    font-size: 2rem;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+
+  &__sub {
+    font-family: var(--font-DMregular);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+  &__tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  &__tab {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--text-muted);
+    font-family: var(--font-DMSemiBold);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+      color: var(--text-primary);
+    }
+
+    &--active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent);
+    }
+  }
+
+  // ── Card ───────────────────────────────────────────────────────────────────
+  &__card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  &__card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+
+    h2 {
+      font-family: var(--font-DMSemiBold);
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-family: var(--font-DMregular);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+  }
+
+  &__save-btn {
+    padding: 9px 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    font-family: var(--font-DMSemiBold);
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // ── Profile ────────────────────────────────────────────────────────────────
+  &__profile-body {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  &__avatar-wrap {
+    flex-shrink: 0;
+  }
+
+  &__avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-DMSemiBold);
+    font-size: 1.3rem;
+    color: white;
+  }
+
+  // ── Fields ─────────────────────────────────────────────────────────────────
+  &__fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      font-family: var(--font-JetBrainsMono);
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+    }
+
+    input,
+    textarea {
+      padding: 11px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text-primary);
+      font-family: var(--font-DMregular);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+
+      &:focus {
+        border-color: var(--accent);
+      }
+
+      &::placeholder {
+        color: var(--text-muted);
+      }
+    }
+  }
+
+  &__error {
+    font-family: var(--font-DMregular);
+    font-size: 0.8rem;
+    color: var(--accent-red);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 10px 14px;
+    border-radius: 8px;
+  }
+
+  // ── Preferences ────────────────────────────────────────────────────────────
+  &__prefs {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  &__pref-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__pref-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  &__pref-label {
+    font-family: var(--font-DMSemiBold);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+  }
+
+  &__pref-desc {
+    font-family: var(--font-DMregular);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  // ── Toggle ─────────────────────────────────────────────────────────────────
+  &__toggle {
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+
+    &--on {
+      background: var(--accent);
+      border-color: var(--accent);
+
+      .settings__toggle-thumb {
+        transform: translateX(20px);
+      }
+    }
+  }
+
+  &__toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  // ── Stats Section ──────────────────────────────────────────────────────────
+  &__stats-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  &__stats-title {
+    font-family: var(--font-DMSemiBold);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+
+  &__stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  &__stat-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__stat-value {
+    font-family: var(--font-SyneSemiBold);
+    font-size: 1.5rem;
+    color: var(--text-primary);
+  }
+
+  &__stat-label {
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  // ── Danger Zone ────────────────────────────────────────────────────────────
+  &__danger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: rgba(239, 68, 68, 0.04);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 16px;
+    padding: 24px 28px;
+  }
+
+  &__danger-info {
+    h3 {
+      font-family: var(--font-DMSemiBold);
+      font-size: 1rem;
+      color: var(--accent-red);
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-family: var(--font-DMregular);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+  }
+
+  &__danger-btn {
+    padding: 10px 22px;
+    background: transparent;
+    border: 1px solid var(--accent-red);
+    border-radius: 9px;
+    color: var(--accent-red);
+    font-family: var(--font-DMSemiBold);
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+
+    &:hover {
+      background: var(--accent-red);
+      color: white;
+    }
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  &__toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--accent-green);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-family: var(--font-DMregular);
+    font-size: 0.875rem;
+    color: var(--accent-green);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: toast-in 0.3s ease;
+
+    span {
+      font-weight: bold;
+      margin-right: 6px;
+    }
+  }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
