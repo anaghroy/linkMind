@@ -1,6 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth.store";
 import { logoutUser } from "../api/auth.api";
+import { useThemeStore } from "../store/theme";
+import { Brain, BrainCircuit } from "lucide-react";
 
 const NAV_ITEMS = [
   {
@@ -74,6 +76,7 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar() {
+  const { theme } = useThemeStore();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
 
@@ -97,17 +100,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="sidebar__logo">
         <div className="sidebar__logo-icon">
-          <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="3" fill="white" />
-            <circle cx="14" cy="6" r="2" fill="white" opacity="0.7" />
-            <circle cx="14" cy="22" r="2" fill="white" opacity="0.7" />
-            <circle cx="6" cy="14" r="2" fill="white" opacity="0.7" />
-            <circle cx="22" cy="14" r="2" fill="white" opacity="0.7" />
-            <circle cx="8" cy="8" r="1.5" fill="white" opacity="0.4" />
-            <circle cx="20" cy="8" r="1.5" fill="white" opacity="0.4" />
-            <circle cx="8" cy="20" r="1.5" fill="white" opacity="0.4" />
-            <circle cx="20" cy="20" r="1.5" fill="white" opacity="0.4" />
-          </svg>
+          {theme === "dark" ? <Brain /> : <Brain color="white"/>}
         </div>
         <div className="sidebar__logo-text">
           <span className="sidebar__logo-name">LinkMind</span>
