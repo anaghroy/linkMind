@@ -4,6 +4,8 @@ import ProtectedRoute from "./ProtectedRoute";
 // Auth pages
 import LoginPage from "../pages/auth/loginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
+import CheckEmailPage from "../pages/auth/CheckEmailPage";
+import VerifyEmailPage from "../pages/auth/VerifyEmailPage";
 
 // App pages
 import DashboardPage from "../pages/dashboard/DashboardPage";
@@ -24,6 +26,8 @@ export default function AppRouter() {
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/check-email" element={<CheckEmailPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
 
       {/* Protected routes — wrapped in AppLayout (sidebar + navbar) */}
       <Route

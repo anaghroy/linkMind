@@ -474,7 +474,119 @@
       color: var(--accent-red);
     }
   }
+  // Collection badge on card
+  &__collection-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+  
+  &__collection-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  &__action-btn--active-accent {
+    color: var(--accent);
+  }
+  // ── Collection Picker Dropdown ─────────────────────────────────────────────
+  &__col-picker {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    width: 200px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    overflow: hidden;
+  }
+  
+  &__col-picker-header {
+    padding: 10px 14px;
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+  }
+  
+  &__col-picker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 14px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-DMregular);
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    text-align: left;
+    transition: background 0.15s;
+  
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+  
+    &--active {
+      color: var(--accent);
+      background: rgba(99, 102, 241, 0.06);
+    }
+  }
+  
+  &__col-picker-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  &__col-picker-count {
+    margin-left: auto;
+    font-family: var(--font-JetBrainsMono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+  }
+  
+  &__col-picker-empty {
+    padding: 12px 14px;
+    font-family: var(--font-DMregular);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  
+  &__col-picker-remove {
+    width: 100%;
+    padding: 9px 14px;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--border);
+    cursor: pointer;
+    font-family: var(--font-DMregular);
+    font-size: 0.78rem;
+    color: var(--accent-red);
+    text-align: left;
+    transition: background 0.15s;
+  
+    &:hover {
+      background: rgba(239, 68, 68, 0.06);
+    }
+  }
 }
+
+
+
 
 // ─── Animations ───────────────────────────────────────────────────────────────
 
