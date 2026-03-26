@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth.store";
 import { useThemeStore } from "../store/theme";
+import { MoonStar } from "lucide-react";
+import { Sun } from "lucide-react";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -71,7 +73,7 @@ export default function Navbar() {
         </button>
         {/* Theme toggle */}
         <button className="navbar__action-btn" onClick={toggleTheme}>
-          {theme === "dark" ? "🌙" : "☀️"}
+          {theme === "dark" ? <MoonStar /> : <Sun />}
         </button>
 
         {/* User avatar */}
