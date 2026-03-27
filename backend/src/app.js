@@ -12,7 +12,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: ["http://localhost:5173", process.env.FRONTEND_URL],
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // Health check route
-app.get("/", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.send(" API is running...");
 });
 
