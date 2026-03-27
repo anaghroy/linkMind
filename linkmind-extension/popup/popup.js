@@ -1,5 +1,5 @@
 // ─── Config ───────────────────────────────────────────────────────────────────
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "https://linkmind-q8k1.onrender.com/api";
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────
 const storage = {
