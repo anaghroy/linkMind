@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useItemsStore } from "../store/items.store";
 import { useUIStore } from "../store/ui.store";
 
@@ -6,23 +6,34 @@ export function useItems(autoFetch = true) {
   const store = useItemsStore();
   const { toastSuccess, toastError } = useUIStore();
 
+  // Track previous filters to avoid infinite loops
+  const prevFiltersRef = useRef(null);
+
+  // Initial fetch
   useEffect(() => {
     if (autoFetch) {
       store.fetchItems();
     }
   }, [autoFetch]);
 
-  // Re-fetch when filters change
+  // Re-fetch when filters change — use JSON comparison to avoid loop
   useEffect(() => {
-    if (autoFetch) {
+    if (!autoFetch) return;
+    const currentFilters = JSON.stringify(store.filters);
+    if (prevFiltersRef.current === null) {
+      prevFiltersRef.current = currentFilters;
+      return; // skip first run — already fetched above
+    }
+    if (prevFiltersRef.current !== currentFilters) {
+      prevFiltersRef.current = currentFilters;
       store.fetchItems();
     }
-  }, [store.filters]);
+  });
 
   const saveItem = async (data) => {
     const result = await store.saveItem(data);
     if (result.success) {
-      toastSuccess("Item saved! AI is processing...");
+      toastSuccess("Saved! AI is processing...");
     } else if (result.duplicate) {
       toastError("This URL is already in your library");
     } else {
@@ -36,13 +47,19 @@ export function useItems(autoFetch = true) {
     if (result.success) {
       toastSuccess("Item deleted");
     } else {
-      toastError(result.error || "Failed to delete item");
+      toastError(result.error || "Failed to delete");
     }
     return result;
   };
 
   const toggleFavorite = async (id) => {
     await store.toggleFavorite(id);
+  };
+
+  const markAsRead = async (id) => {
+    const result = await store.markAsRead(id);
+    if (result.success) toastSuccess("Marked as read");
+    return result;
   };
 
   return {
@@ -56,12 +73,13 @@ export function useItems(autoFetch = true) {
     saveItem,
     deleteItem,
     toggleFavorite,
+    markAsRead,
     updateItem: store.updateItem,
-    markAsRead: store.markAsRead,
     fetchItems: store.fetchItems,
     fetchStats: store.fetchStats,
     setFilter: store.setFilter,
     setPage: store.setPage,
     resetFilters: store.resetFilters,
+    clearItems: store.clearItems,
   };
 }
