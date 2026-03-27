@@ -43,8 +43,11 @@ app.use("/api", routes);
 app.use(express.static(path.join(__dirname, "../public")));
 
 // Correct catch-all wildcard so React Router handles all frontend routes
-app.get((req, res) => {
-  res.sendFile(path.join(__dirname, "../public", "index.html"));
+app.use((req, res, next) => {
+  if (req.method === "GET" && !req.path.startsWith("/api")) {
+    return res.sendFile(path.join(__dirname, "../public", "index.html"));
+  }
+  next();
 });
 // Global Error Handler
 app.use(errorMiddleware);
