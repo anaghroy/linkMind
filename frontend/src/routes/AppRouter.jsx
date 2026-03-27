@@ -19,6 +19,7 @@ import SettingsPage from "../pages/Settings/SettingsPage";
 
 // Layout
 import AppLayout from "../layout/AppLayout";
+import ClustersPage from "../components/cluster/Clusterspage";
 
 export default function AppRouter() {
   return (
@@ -40,6 +41,7 @@ export default function AppRouter() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/library" element={<LibraryPage />} />
         <Route path="/library/:id" element={<ItemDetailPage />} />
+        <Route path="/clusters" element={<ClustersPage />} />
         <Route path="/collections" element={<CollectionsPage />} />
         <Route path="/collections/:id" element={<CollectionDetail />} />
         <Route path="/search" element={<SearchPage />} />
