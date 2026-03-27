@@ -7,6 +7,9 @@ import path from "path";
 import routes from "./routes/index.routes.js";
 import errorMiddleware from "./middleware/error.middleware.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 // Middlewares
