@@ -177,7 +177,7 @@ PORT=3000
 NODE_ENV=development
 
 # MongoDB
-MONGO_URI=mongodb+srv://user:password@cluster.mongodb.net/LinkMind
+MONGO_URI=mongodb+srv://xxxxxxxx
 
 # Redis
 REDIS_URL=redis://default:password@host:port
