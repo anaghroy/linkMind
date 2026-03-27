@@ -14,6 +14,7 @@ export const useItemsStore = create((set, get) => ({
   items: [],
   currentItem: null,
   stats: null,
+  typeCounts: {},       // ← real counts per type from backend
   pagination: {},
   loading: false,
   saving: false,
@@ -58,9 +59,24 @@ export const useItemsStore = create((set, get) => ({
     }
   },
 
+  // ── Fetch Stats + Type Counts ──────────────────────────────────────────────
+  // This gives us REAL counts per type from the DB, not just current page
+  fetchStats: async () => {
+    try {
+      const res = await getItemStats();
+      const stats = res.data.stats;
+      set({
+        stats,
+        typeCounts: stats?.byType || {},
+      });
+    } catch (err) {
+      console.error("Failed to fetch stats:", err);
+    }
+  },
+
   // ── Fetch Single Item ──────────────────────────────────────────────────────
   fetchItemById: async (id) => {
-    set({ loading: true, error: null });
+    set({ loading: true, currentItem: null, error: null });
     try {
       const res = await getItemById(id);
       set({ currentItem: res.data.item, loading: false });
@@ -74,26 +90,17 @@ export const useItemsStore = create((set, get) => ({
     }
   },
 
-  // ── Fetch Stats ────────────────────────────────────────────────────────────
-  fetchStats: async () => {
-    try {
-      const res = await getItemStats();
-      set({ stats: res.data.stats });
-    } catch (err) {
-      console.error("Failed to fetch stats:", err);
-    }
-  },
-
   // ── Save Item ──────────────────────────────────────────────────────────────
   saveItem: async (data) => {
     set({ saving: true, error: null });
     try {
       const res = await saveItem(data);
-      // Prepend to list so it appears at top
       set((state) => ({
         items: [res.data.item, ...state.items],
         saving: false,
       }));
+      // Refresh stats so type counts update
+      get().fetchStats();
       return { success: true, item: res.data.item };
     } catch (err) {
       const message = err.response?.data?.message || "Failed to save item";
@@ -126,18 +133,14 @@ export const useItemsStore = create((set, get) => ({
   toggleFavorite: async (id) => {
     const item = get().items.find((i) => i._id === id);
     if (!item) return;
-
-    // Optimistic update — instant UI response
     set((state) => ({
       items: state.items.map((i) =>
         i._id === id ? { ...i, isFavorite: !i.isFavorite } : i
       ),
     }));
-
     try {
       await updateItem(id, { isFavorite: !item.isFavorite });
     } catch {
-      // Revert on API error
       set((state) => ({
         items: state.items.map((i) =>
           i._id === id ? { ...i, isFavorite: item.isFavorite } : i
@@ -155,6 +158,8 @@ export const useItemsStore = create((set, get) => ({
         currentItem:
           state.currentItem?._id === id ? null : state.currentItem,
       }));
+      // Refresh stats so type counts update
+      get().fetchStats();
       return { success: true };
     } catch (err) {
       return {
@@ -186,7 +191,6 @@ export const useItemsStore = create((set, get) => ({
       filters: {
         ...state.filters,
         [key]: value,
-        // Reset to page 1 on any filter change except page itself
         page: key !== "page" ? 1 : value,
       },
     }));

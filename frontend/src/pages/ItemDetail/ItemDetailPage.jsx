@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  getItemById,
-  updateItem,
-  deleteItem,
-  markAsRead,
-  addHighlight,
-  removeHighlight,
-} from "../../api/items.api";
+import { useItems } from "../../hooks/useItems";
+import { addHighlight, removeHighlight } from "../../api/items.api";
 import { timeAgo } from "../../utils/timeAgo";
 import { getTypeConfig } from "../../utils/typeColors";
 import SimilarItems from "./SimilarItems";
@@ -17,70 +11,90 @@ export default function ItemDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [item, setItem] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    currentItem: item,
+    loading,
+    fetchItemById,
+    updateItem,
+    deleteItem,
+    markAsRead,
+    clearCurrentItem,
+  } = useItems(false); // false = don't auto-fetch list
+
   const [note, setNote] = useState("");
   const [noteSaving, setNoteSaving] = useState(false);
 
+  // Fetch this specific item on mount
   useEffect(() => {
-    getItemById(id)
-      .then((res) => {
-        setItem(res.data.item);
-        setNote(res.data.item.userNote || "");
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    fetchItemById(id);
+    return () => clearCurrentItem(); // cleanup on unmount
   }, [id]);
 
+  // Sync note when item loads
+  useEffect(() => {
+    if (item) {
+      setNote(item.userNote || "");
+    }
+  }, [item?._id]);
+
   const handleFavorite = async () => {
-    try {
-      const res = await updateItem(id, { isFavorite: !item.isFavorite });
-      setItem(res.data.item);
-    } catch (err) { console.error(err); }
+    await updateItem(id, { isFavorite: !item.isFavorite });
   };
 
   const handleMarkRead = async () => {
-    try {
-      const res = await markAsRead(id);
-      setItem(res.data.item);
-    } catch (err) { console.error(err); }
-  };
-
-  const handleArchive = async () => {
-    try {
-      await updateItem(id, { isArchived: true });
-      navigate("/library");
-    } catch (err) { console.error(err); }
+    await markAsRead(id);
   };
 
   const handleDelete = async () => {
     if (!confirm("Delete this item permanently?")) return;
-    try {
-      await deleteItem(id);
-      navigate("/library");
-    } catch (err) { console.error(err); }
+    const result = await deleteItem(id);
+    if (result.success) navigate("/library");
   };
 
   const handleNoteSave = async () => {
+    if (note === item?.userNote) return; // no change
     setNoteSaving(true);
     try {
       await updateItem(id, { userNote: note });
-    } catch (err) { console.error(err); }
-    finally { setNoteSaving(false); }
+    } finally {
+      setNoteSaving(false);
+    }
   };
 
   const handleAddHighlight = async (highlight) => {
     try {
       const res = await addHighlight(id, highlight);
-      setItem((prev) => ({ ...prev, highlights: res.data.highlights }));
-    } catch (err) { console.error(err); }
+      // Update currentItem highlights in store via updateItem
+      await updateItem(id, {}); // re-fetch by triggering a soft update
+      // Actually just update locally since API returns new highlights
+      if (res.data.highlights) {
+        // Manually patch into store
+        const { useItemsStore } = await import("../../store/items.store");
+        useItemsStore.setState((state) => ({
+          currentItem: state.currentItem
+            ? { ...state.currentItem, highlights: res.data.highlights }
+            : null,
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleRemoveHighlight = async (hid) => {
     try {
       const res = await removeHighlight(id, hid);
-      setItem((prev) => ({ ...prev, highlights: res.data.highlights }));
-    } catch (err) { console.error(err); }
+      if (res.data.highlights) {
+        const { useItemsStore } = await import("../../store/items.store");
+        useItemsStore.setState((state) => ({
+          currentItem: state.currentItem
+            ? { ...state.currentItem, highlights: res.data.highlights }
+            : null,
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (loading) return <div className="item-detail__loading">Loading...</div>;
@@ -91,8 +105,18 @@ export default function ItemDetailPage() {
   return (
     <div className="item-detail">
       {/* Back button */}
-      <button className="item-detail__back" onClick={() => navigate("/library")}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <button
+        className="item-detail__back"
+        onClick={() => navigate("/library")}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>
@@ -100,7 +124,6 @@ export default function ItemDetailPage() {
       </button>
 
       <div className="item-detail__layout">
-        {/* Main content */}
         <article className="item-detail__main">
           {/* Header */}
           <div className="item-detail__header">
@@ -127,30 +150,29 @@ export default function ItemDetailPage() {
               )}
             </div>
 
-            {/* Thumbnail */}
             {item.metadata?.thumbnail && (
               <div className="item-detail__thumb">
                 <img
                   src={item.metadata.thumbnail}
                   alt={item.title}
-                  onError={(e) => (e.target.parentElement.style.display = "none")}
+                  onError={(e) =>
+                    (e.target.parentElement.style.display = "none")
+                  }
                 />
               </div>
             )}
 
-            {/* Title */}
             <h1 className="item-detail__title">{item.title}</h1>
 
-            {/* Meta info */}
             <div className="item-detail__info">
-              {item.metadata?.author && (
-                <span>By {item.metadata.author}</span>
-              )}
+              {item.metadata?.author && <span>By {item.metadata.author}</span>}
               {item.metadata?.readingTime && (
                 <span>{item.metadata.readingTime} min read</span>
               )}
               {item.metadata?.publishedAt && (
-                <span>{new Date(item.metadata.publishedAt).toLocaleDateString()}</span>
+                <span>
+                  {new Date(item.metadata.publishedAt).toLocaleDateString()}
+                </span>
               )}
               <span>Saved {timeAgo(item.createdAt)}</span>
             </div>
@@ -169,7 +191,9 @@ export default function ItemDetailPage() {
               {item.aiTags?.length > 0 && (
                 <div className="item-detail__ai-tags">
                   {item.aiTags.map((tag) => (
-                    <span className="item-detail__ai-tag" key={tag}>#{tag}</span>
+                    <span className="item-detail__ai-tag" key={tag}>
+                      #{tag}
+                    </span>
                   ))}
                 </div>
               )}
@@ -199,23 +223,38 @@ export default function ItemDetailPage() {
             onRemove={handleRemoveHighlight}
           />
 
-          {/* Action buttons */}
+          {/* Actions */}
           <div className="item-detail__actions">
             <button
               className={`item-detail__action-btn${item.isFavorite ? " item-detail__action-btn--active-yellow" : ""}`}
               onClick={handleFavorite}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24"
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
                 fill={item.isFavorite ? "#f59e0b" : "none"}
-                stroke="#f59e0b" strokeWidth="2">
+                stroke="#f59e0b"
+                strokeWidth="2"
+              >
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
               {item.isFavorite ? "Unfavorite" : "Favorite"}
             </button>
 
             {!item.readAt && (
-              <button className="item-detail__action-btn" onClick={handleMarkRead}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <button
+                className="item-detail__action-btn"
+                onClick={handleMarkRead}
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
                 Mark as Read
@@ -229,7 +268,14 @@ export default function ItemDetailPage() {
                 rel="noopener noreferrer"
                 className="item-detail__action-btn item-detail__action-btn--primary"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                   <polyline points="15 3 21 3 21 9" />
                   <line x1="10" y1="14" x2="21" y2="3" />
@@ -242,7 +288,14 @@ export default function ItemDetailPage() {
               className="item-detail__action-btn item-detail__action-btn--danger"
               onClick={handleDelete}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6l-1 14H6L5 6" />
               </svg>
@@ -251,7 +304,6 @@ export default function ItemDetailPage() {
           </div>
         </article>
 
-        {/* Similar Items sidebar */}
         <aside className="item-detail__sidebar">
           <SimilarItems itemId={id} />
         </aside>

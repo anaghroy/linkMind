@@ -5,8 +5,6 @@ import { useUIStore } from "../store/ui.store";
 export function useItems(autoFetch = true) {
   const store = useItemsStore();
   const { toastSuccess, toastError } = useUIStore();
-
-  // Track previous filters to avoid infinite loops
   const prevFiltersRef = useRef(null);
 
   // Initial fetch
@@ -16,13 +14,13 @@ export function useItems(autoFetch = true) {
     }
   }, [autoFetch]);
 
-  // Re-fetch when filters change — use JSON comparison to avoid loop
+  // Re-fetch when filters change
   useEffect(() => {
     if (!autoFetch) return;
     const currentFilters = JSON.stringify(store.filters);
     if (prevFiltersRef.current === null) {
       prevFiltersRef.current = currentFilters;
-      return; // skip first run — already fetched above
+      return;
     }
     if (prevFiltersRef.current !== currentFilters) {
       prevFiltersRef.current = currentFilters;
@@ -64,7 +62,9 @@ export function useItems(autoFetch = true) {
 
   return {
     items: store.items,
+    currentItem: store.currentItem,
     stats: store.stats,
+    typeCounts: store.typeCounts,  
     pagination: store.pagination,
     loading: store.loading,
     saving: store.saving,
@@ -77,9 +77,11 @@ export function useItems(autoFetch = true) {
     updateItem: store.updateItem,
     fetchItems: store.fetchItems,
     fetchStats: store.fetchStats,
+    fetchItemById: store.fetchItemById,
     setFilter: store.setFilter,
     setPage: store.setPage,
     resetFilters: store.resetFilters,
     clearItems: store.clearItems,
+    clearCurrentItem: store.clearCurrentItem,
   };
 }

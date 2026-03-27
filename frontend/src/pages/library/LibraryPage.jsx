@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useItems } from "../../hooks/useItems";
 import { useCollections } from "../../hooks/useCollections";
@@ -24,32 +24,37 @@ const SORT_OPTIONS = [
 export default function LibraryPage() {
   const navigate = useNavigate();
 
-  // ── Zustand hooks ──────────────────────────────────────────────────────────
   const {
     items,
     pagination,
     loading,
     saving,
     filters,
+    stats,
+    typeCounts,       // ← real counts from DB via fetchStats()
     saveItem,
     deleteItem,
     toggleFavorite,
     fetchItems,
+    fetchStats,
     setFilter,
     setPage,
   } = useItems(true);
 
   const {
     collections,
-    fetchCollections,
     addItem: addItemToCol,
     removeItem: removeItemFromCol,
   } = useCollections(true);
 
-  // ── Local UI state ─────────────────────────────────────────────────────────
   const [url, setUrl] = useState("");
   const [saveMsg, setSaveMsg] = useState("");
   const [collectionPicker, setCollectionPicker] = useState(null);
+
+  // Fetch real type counts on mount
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   // Close picker on outside click
   useEffect(() => {
@@ -91,7 +96,6 @@ export default function LibraryPage() {
   const handleAddToCollection = async (e, itemId, collectionId) => {
     e.stopPropagation();
     await addItemToCol(collectionId, itemId);
-    // Sync item in local items list
     fetchItems();
     setCollectionPicker(null);
   };
@@ -106,11 +110,15 @@ export default function LibraryPage() {
     setCollectionPicker(null);
   };
 
-  // ── Type counts from real items data ──────────────────────────────────────
-  // These counts reflect the CURRENT filter state from the store
+  // ── Type count helper ──────────────────────────────────────────────────────
+  // Uses real DB counts from fetchStats(), not current page items
   const getTypeCount = (typeValue) => {
-    if (!typeValue) return pagination.total || items.length;
-    return items.filter((i) => i.type === typeValue).length;
+    if (!typeValue) {
+      // "All Items" → total from stats
+      return stats?.total ?? pagination?.total ?? 0;
+    }
+    // Per-type count from stats.byType
+    return typeCounts?.[typeValue] ?? 0;
   };
 
   return (
@@ -125,7 +133,9 @@ export default function LibraryPage() {
               return (
                 <button
                   key={f.value}
-                  className={`library__type-btn${filters.type === f.value ? " library__type-btn--active" : ""}`}
+                  className={`library__type-btn${
+                    filters.type === f.value ? " library__type-btn--active" : ""
+                  }`}
                   onClick={() => setFilter("type", f.value)}
                 >
                   <span className="library__type-btn-left">
@@ -137,6 +147,7 @@ export default function LibraryPage() {
                     )}
                     {f.label}
                   </span>
+                  {/* ✅ Real count from DB stats */}
                   <span className="library__type-count">
                     {getTypeCount(f.value)}
                   </span>
@@ -161,19 +172,23 @@ export default function LibraryPage() {
 
         <div className="library__filters-section">
           <button
-            className={`library__fav-btn${filters.isFavorite ? " library__fav-btn--active" : ""}`}
+            className={`library__fav-btn${
+              filters.isFavorite ? " library__fav-btn--active" : ""
+            }`}
             onClick={() => setFilter("isFavorite", !filters.isFavorite)}
           >
             <span>Favorites Only</span>
-            <svg width="14" height="14" viewBox="0 0 24 24"
+            <svg
+              width="14" height="14" viewBox="0 0 24 24"
               fill={filters.isFavorite ? "#f59e0b" : "none"}
-              stroke="#f59e0b" strokeWidth="2">
+              stroke="#f59e0b" strokeWidth="2"
+            >
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
           </button>
         </div>
 
-        {/* Collections from Zustand store — always in sync */}
+        {/* Collections — itemCount from store, always synced */}
         {collections.length > 0 && (
           <div className="library__filters-section">
             <span className="library__filters-label">COLLECTIONS</span>
@@ -191,7 +206,6 @@ export default function LibraryPage() {
                     />
                     {col.name}
                   </span>
-                  {/* itemCount from store — always synced */}
                   <span className="library__type-count">
                     {col.itemCount || 0}
                   </span>
@@ -220,15 +234,23 @@ export default function LibraryPage() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
-          <button type="submit" className="library__savebar-btn" disabled={saving}>
+          <button
+            type="submit"
+            className="library__savebar-btn"
+            disabled={saving}
+          >
             {saving ? "SAVING..." : "SAVE TO LIBRARY"}
           </button>
         </form>
 
         {saveMsg && (
-          <p className={`library__save-msg${
-            saveMsg.startsWith("✓") ? " library__save-msg--success" : " library__save-msg--error"
-          }`}>
+          <p
+            className={`library__save-msg${
+              saveMsg.startsWith("✓")
+                ? " library__save-msg--success"
+                : " library__save-msg--error"
+            }`}
+          >
             {saveMsg}
           </p>
         )}
