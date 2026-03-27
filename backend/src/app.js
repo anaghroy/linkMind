@@ -35,13 +35,6 @@ app.get("/api/health", (req, res) => {
 // API Routes
 app.use("/api", routes);
 
-// 404 Handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
 // Serve React build with correct absolute path
 app.use(express.static(path.join(__dirname, "../public")));
 
