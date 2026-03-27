@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config({ path: "./.env" });
+dotenv.config();
 
 // ✅ All dynamic imports run AFTER dotenv.config()
 const { default: app } = await import("./src/app.js");
